@@ -11,6 +11,7 @@ export interface XdgPaths {
 
 export interface SyncLocations {
   xdg: XdgPaths;
+  configRoot: string;
   syncConfigPath: string;
   overridesPath: string;
   statePath: string;
@@ -92,11 +93,15 @@ export function resolveSyncLocations(
   platform: NodeJS.Platform = process.platform
 ): SyncLocations {
   const xdg = resolveXdgPaths(env, platform);
-  const configRoot = path.join(xdg.configDir, 'opencode');
+  const customConfigDir = env.OPENCODE_CONFIG_DIR;
+  const configRoot = customConfigDir
+    ? path.resolve(expandHome(customConfigDir, xdg.homeDir))
+    : path.join(xdg.configDir, 'opencode');
   const dataRoot = path.join(xdg.dataDir, 'opencode');
 
   return {
     xdg,
+    configRoot,
     syncConfigPath: path.join(configRoot, DEFAULT_SYNC_CONFIG_NAME),
     overridesPath: path.join(configRoot, DEFAULT_OVERRIDES_NAME),
     statePath: path.join(dataRoot, DEFAULT_STATE_NAME),
@@ -156,7 +161,7 @@ export function buildSyncPlan(
   repoRoot: string,
   platform: NodeJS.Platform = process.platform
 ): SyncPlan {
-  const configRoot = path.join(locations.xdg.configDir, 'opencode');
+  const configRoot = locations.configRoot;
   const dataRoot = path.join(locations.xdg.dataDir, 'opencode');
   const repoConfigRoot = path.join(repoRoot, 'config');
   const repoDataRoot = path.join(repoRoot, 'data');

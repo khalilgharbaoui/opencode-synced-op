@@ -36,11 +36,12 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.4",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^8.47.0",
     "vitest": "^3.2.4"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir dist --target bun && cp -R src/command dist/command",
+    "build": "bun build ./src/index.ts --outdir dist --target bun && tsc -p tsconfig.build.json && cp -R src/command dist/command",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",

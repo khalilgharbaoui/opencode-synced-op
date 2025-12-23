@@ -134,6 +134,6 @@ Then re-run `/opencode-sync-pull` or `/opencode-sync-push`.
 
 ## Development
 
-- `npm run build`
-- `npm run test`
-- `npm run lint`
+- `bun run build`
+- `bun run test`
+- `bun run lint`

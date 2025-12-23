@@ -1,24 +1,11 @@
-interface CommitClient {
-  config: {
-    get: () => Promise<{ small_model?: string; model?: string }>;
-  };
-  session: {
-    create: (input: { body: { title: string } }) => Promise<{ id: string }>;
-    prompt: (input: {
-      path: { id: string };
-      body: {
-        model?: { providerID: string; modelID: string };
-        parts: Array<{ type: 'text'; text: string }>;
-        noReply?: boolean;
-      };
-    }) => Promise<unknown>;
-    delete: (input: { path: { id: string } }) => Promise<unknown>;
-  };
-}
+import type { PluginInput } from '@opencode-ai/plugin';
+
+type CommitClient = PluginInput['client'];
+type Shell = PluginInput['$'];
 
 interface CommitContext {
   client: CommitClient;
-  $: typeof Bun.$;
+  $: Shell;
 }
 
 export async function generateCommitMessage(
@@ -46,8 +33,10 @@ export async function generateCommitMessage(
   let sessionId: string | null = null;
 
   try {
-    const session = await ctx.client.session.create({ body: { title: 'opencode-sync' } });
-    sessionId = session.id;
+    const sessionResult = await ctx.client.session.create({ body: { title: 'opencode-sync' } });
+    const session = unwrapData<{ id: string }>(sessionResult);
+    sessionId = session?.id ?? null;
+    if (!sessionId) return fallback;
 
     const response = await ctx.client.session.prompt({
       path: { id: sessionId },
@@ -57,7 +46,7 @@ export async function generateCommitMessage(
       },
     });
 
-    const message = extractMessage(response);
+    const message = extractMessage(unwrapData(response) ?? response);
     if (!message) return fallback;
 
     const sanitized = sanitizeMessage(message);
@@ -95,13 +84,17 @@ function sanitizeMessage(message: string): string {
   return trimmed.slice(0, 72).trim();
 }
 
-async function resolveSmallModel(client: CommitClient): Promise<{ providerID: string; modelID: string } | null> {
-  let config: { small_model?: string; model?: string };
+async function resolveSmallModel(
+  client: CommitClient
+): Promise<{ providerID: string; modelID: string } | null> {
+  let config: { small_model?: string; model?: string } | null = null;
   try {
-    config = await client.config.get();
+    const response = await client.config.get();
+    config = unwrapData<{ small_model?: string; model?: string }>(response);
   } catch {
     return null;
   }
+  if (!config) return null;
   const modelValue = config.small_model ?? config.model;
   if (!modelValue) return null;
 
@@ -110,7 +103,7 @@ async function resolveSmallModel(client: CommitClient): Promise<{ providerID: st
   return { providerID, modelID };
 }
 
-async function getDiffSummary($: typeof Bun.$, repoDir: string): Promise<string> {
+async function getDiffSummary($: Shell, repoDir: string): Promise<string> {
   try {
     const nameStatus = await $`git -C ${repoDir} diff --name-status`.text();
     const stats = await $`git -C ${repoDir} diff --stat`.text();
@@ -125,4 +118,16 @@ function formatDate(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function unwrapData<T>(response: unknown): T | null {
+  if (!response || typeof response !== 'object') return null;
+  const maybeError = (response as { error?: unknown }).error;
+  if (maybeError) return null;
+  if ('data' in response) {
+    const data = (response as { data?: T }).data;
+    if (data !== undefined) return data;
+    return null;
+  }
+  return response as T;
 }

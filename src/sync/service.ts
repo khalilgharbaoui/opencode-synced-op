@@ -1,3 +1,5 @@
+import type { PluginInput } from '@opencode-ai/plugin';
+
 import {
   loadOverrides,
   loadState,
@@ -17,34 +19,14 @@ import {
   fetchAndFastForward,
   getRepoStatus,
   hasLocalChanges,
+  isRepoCloned,
   pushBranch,
   resolveRepoBranch,
   resolveRepoIdentifier,
 } from './repo.ts';
 
-interface SyncServiceContext {
-  client: {
-    tui: {
-      showToast: (input: { body: { message: string; variant?: string } }) => Promise<boolean>;
-    };
-    config: {
-      get: () => Promise<{ small_model?: string; model?: string }>;
-    };
-    session: {
-      create: (input: { body: { title: string } }) => Promise<{ id: string }>;
-      prompt: (input: {
-        path: { id: string };
-        body: {
-          model?: { providerID: string; modelID: string };
-          parts: Array<{ type: 'text'; text: string }>;
-          noReply?: boolean;
-        };
-      }) => Promise<unknown>;
-      delete: (input: { path: { id: string } }) => Promise<unknown>;
-    };
-  };
-  $: typeof Bun.$;
-}
+type SyncServiceContext = Pick<PluginInput, 'client' | '$'>;
+type Shell = PluginInput['$'];
 
 interface InitOptions {
   repo?: string;
@@ -95,17 +77,16 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
       let repoStatus: string[] = [];
       let branch = resolveRepoBranch(config);
 
-      if (await hasLocalChanges(ctx.$, repoRoot)) {
-        repoStatus = ['Pending changes in local sync repo'];
-      }
-
-      try {
-        const status = await getRepoStatus(ctx.$, repoRoot);
-        repoStatus = status.changes;
-        branch = status.branch;
-      } catch {
-        if (repoStatus.length === 0) {
-          repoStatus = ['Repo not cloned'];
+      const cloned = await isRepoCloned(repoRoot);
+      if (!cloned) {
+        repoStatus = ['Repo not cloned'];
+      } else {
+        try {
+          const status = await getRepoStatus(ctx.$, repoRoot);
+          repoStatus = status.changes;
+          branch = status.branch;
+        } catch {
+          repoStatus = ['Repo status unavailable'];
         }
       }
 
@@ -114,7 +95,16 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
       const lastPull = state.lastPull ?? 'never';
       const lastPush = state.lastPush ?? 'never';
 
-      const changesLabel = repoStatus.length > 0 ? `${repoStatus.length} pending` : 'clean';
+      let changesLabel = 'clean';
+      if (!cloned) {
+        changesLabel = 'not cloned';
+      } else if (repoStatus.length > 0) {
+        if (repoStatus[0] === 'Repo status unavailable') {
+          changesLabel = 'unknown';
+        } else {
+          changesLabel = `${repoStatus.length} pending`;
+        }
+      }
       const statusLines = [
         `Repo: ${repoIdentifier}`,
         `Branch: ${branch}`,
@@ -339,7 +329,7 @@ function resolveRepoFromInit(options: InitOptions) {
 }
 
 async function createRepo(
-  $: typeof Bun.$,
+  $: Shell,
   config: ReturnType<typeof normalizeSyncConfig>,
   isPrivate: boolean
 ): Promise<void> {
@@ -357,10 +347,12 @@ async function createRepo(
   }
 }
 
+type ToastVariant = 'info' | 'success' | 'warning' | 'error';
+
 async function showToast(
   ctx: SyncServiceContext,
   message: string,
-  variant: string
+  variant: ToastVariant
 ): Promise<void> {
   await ctx.client.tui.showToast({ body: { message: `opencode-sync: ${message}`, variant } });
 }

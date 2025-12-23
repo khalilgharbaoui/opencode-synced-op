@@ -25,6 +25,20 @@ describe('resolveXdgPaths', () => {
   });
 });
 
+describe('resolveSyncLocations', () => {
+  it('respects OPENCODE_CONFIG_DIR', () => {
+    const env = {
+      HOME: '/home/test',
+      OPENCODE_CONFIG_DIR: '/custom/opencode',
+    } as NodeJS.ProcessEnv;
+    const locations = resolveSyncLocations(env, 'linux');
+
+    expect(locations.configRoot).toBe('/custom/opencode');
+    expect(locations.syncConfigPath).toBe('/custom/opencode/opencode-sync.jsonc');
+    expect(locations.overridesPath).toBe('/custom/opencode/opencode-sync.overrides.jsonc');
+  });
+});
+
 describe('buildSyncPlan', () => {
   it('excludes secrets when includeSecrets is false', () => {
     const env = { HOME: '/home/test' } as NodeJS.ProcessEnv;

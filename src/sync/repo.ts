@@ -1,3 +1,4 @@
+import type { PluginInput } from '@opencode-ai/plugin';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -20,6 +21,13 @@ export interface RepoUpdateResult {
   branch: string;
 }
 
+type Shell = PluginInput['$'];
+
+export async function isRepoCloned(repoDir: string): Promise<boolean> {
+  const gitDir = path.join(repoDir, '.git');
+  return pathExists(gitDir);
+}
+
 export function resolveRepoIdentifier(config: SyncConfig): string {
   const repo = config.repo;
   if (!repo) {
@@ -39,12 +47,11 @@ export function resolveRepoBranch(config: SyncConfig, fallback = 'main'): string
 }
 
 export async function ensureRepoCloned(
-  $: typeof Bun.$,
+  $: Shell,
   config: SyncConfig,
   repoDir: string
 ): Promise<void> {
-  const gitDir = path.join(repoDir, '.git');
-  if (await pathExists(gitDir)) {
+  if (await isRepoCloned(repoDir)) {
     return;
   }
 
@@ -59,7 +66,7 @@ export async function ensureRepoCloned(
 }
 
 export async function ensureRepoPrivate(
-  $: typeof Bun.$,
+  $: Shell,
   config: SyncConfig
 ): Promise<void> {
   const repoIdentifier = resolveRepoIdentifier(config);
@@ -92,7 +99,7 @@ export function parseRepoVisibility(output: string): boolean {
 }
 
 export async function fetchAndFastForward(
-  $: typeof Bun.$,
+  $: Shell,
   repoDir: string,
   branch: string
 ): Promise<RepoUpdateResult> {
@@ -129,19 +136,19 @@ export async function fetchAndFastForward(
   return { updated: false, branch };
 }
 
-export async function getRepoStatus($: typeof Bun.$, repoDir: string): Promise<RepoStatus> {
+export async function getRepoStatus($: Shell, repoDir: string): Promise<RepoStatus> {
   const branch = await getCurrentBranch($, repoDir);
   const changes = await getStatusLines($, repoDir);
   return { branch, changes };
 }
 
-export async function hasLocalChanges($: typeof Bun.$, repoDir: string): Promise<boolean> {
+export async function hasLocalChanges($: Shell, repoDir: string): Promise<boolean> {
   const lines = await getStatusLines($, repoDir);
   return lines.length > 0;
 }
 
 export async function commitAll(
-  $: typeof Bun.$,
+  $: Shell,
   repoDir: string,
   message: string
 ): Promise<void> {
@@ -154,7 +161,7 @@ export async function commitAll(
 }
 
 export async function pushBranch(
-  $: typeof Bun.$,
+  $: Shell,
   repoDir: string,
   branch: string
 ): Promise<void> {
@@ -165,7 +172,7 @@ export async function pushBranch(
   }
 }
 
-async function getCurrentBranch($: typeof Bun.$, repoDir: string): Promise<string> {
+async function getCurrentBranch($: Shell, repoDir: string): Promise<string> {
   try {
     const output = await $`git -C ${repoDir} rev-parse --abbrev-ref HEAD`.text();
     const branch = output.trim();
@@ -176,7 +183,7 @@ async function getCurrentBranch($: typeof Bun.$, repoDir: string): Promise<strin
   }
 }
 
-async function checkoutBranch($: typeof Bun.$, repoDir: string, branch: string): Promise<void> {
+async function checkoutBranch($: Shell, repoDir: string, branch: string): Promise<void> {
   const exists = await hasLocalBranch($, repoDir, branch);
   try {
     if (exists) {
@@ -189,7 +196,7 @@ async function checkoutBranch($: typeof Bun.$, repoDir: string, branch: string):
   }
 }
 
-async function hasLocalBranch($: typeof Bun.$, repoDir: string, branch: string): Promise<boolean> {
+async function hasLocalBranch($: Shell, repoDir: string, branch: string): Promise<boolean> {
   try {
     await $`git -C ${repoDir} show-ref --verify refs/heads/${branch}`;
     return true;
@@ -198,7 +205,7 @@ async function hasLocalBranch($: typeof Bun.$, repoDir: string, branch: string):
   }
 }
 
-async function hasRemoteRef($: typeof Bun.$, repoDir: string, branch: string): Promise<boolean> {
+async function hasRemoteRef($: Shell, repoDir: string, branch: string): Promise<boolean> {
   try {
     await $`git -C ${repoDir} show-ref --verify refs/remotes/origin/${branch}`;
     return true;
@@ -208,7 +215,7 @@ async function hasRemoteRef($: typeof Bun.$, repoDir: string, branch: string): P
 }
 
 async function getAheadBehind(
-  $: typeof Bun.$,
+  $: Shell,
   repoDir: string,
   remoteRef: string
 ): Promise<{ ahead: number; behind: number }> {
@@ -223,7 +230,7 @@ async function getAheadBehind(
   }
 }
 
-async function getStatusLines($: typeof Bun.$, repoDir: string): Promise<string[]> {
+async function getStatusLines($: Shell, repoDir: string): Promise<string[]> {
   try {
     const output = await $`git -C ${repoDir} status --porcelain`.text();
     return output
