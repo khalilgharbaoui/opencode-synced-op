@@ -48,7 +48,7 @@ const DEFAULT_CONFIGC_NAME = 'opencode.jsonc';
 const DEFAULT_AGENTS_NAME = 'AGENTS.md';
 const DEFAULT_SYNC_CONFIG_NAME = 'opencode-sync.jsonc';
 const DEFAULT_OVERRIDES_NAME = 'opencode-sync.overrides.jsonc';
-const DEFAULT_STATE_NAME = 'opencode-sync-state.json';
+const DEFAULT_STATE_NAME = 'sync-state.json';
 
 const CONFIG_DIRS = ['agent', 'command', 'mode', 'tool', 'themes', 'plugin'];
 const SESSION_DIRS = ['storage/session', 'storage/message', 'storage/part', 'storage/session_diff'];

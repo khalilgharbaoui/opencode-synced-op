@@ -10,7 +10,7 @@ Sync global OpenCode configuration across machines via a GitHub repo, with optio
 - Optional prompt stash sync to share stashed prompts and history across machines
 - Startup auto-sync with restart toast
 - Per-machine overrides via `opencode-sync.overrides.jsonc`
-- Custom `/opencode-sync-*` commands and `opencode_sync` tool
+- Custom `/sync-*` commands and `opencode_sync` tool
 
 ## Requirements
 
@@ -53,7 +53,7 @@ Create `~/.config/opencode/opencode-sync.jsonc`:
 }
 ```
 
-You can also run `/opencode-sync-init` to scaffold this file.
+You can also run `/sync-init` to scaffold this file.
 
 ### Synced paths (default)
 
@@ -63,7 +63,7 @@ You can also run `/opencode-sync-init` to scaffold this file.
 
 ### Secrets (private repos only)
 
-Enable secrets with `/opencode-sync-enable-secrets` or set `"includeSecrets": true`:
+Enable secrets with `/sync-enable-secrets` or set `"includeSecrets": true`:
 
 - `~/.local/share/opencode/auth.json`
 - `~/.local/share/opencode/mcp-auth.json`
@@ -117,11 +117,11 @@ Overrides are merged into the runtime config and re-applied to `opencode.json(c)
 
 ## Usage
 
-- `/opencode-sync-status` for repo status and last sync
-- `/opencode-sync-pull` to fetch and apply remote config
-- `/opencode-sync-push` to commit and push local changes
-- `/opencode-sync-enable-secrets` to opt in to secrets sync
-- `/opencode-sync-resolve` to automatically resolve uncommitted changes using AI
+- `/sync-status` for repo status and last sync
+- `/sync-pull` to fetch and apply remote config
+- `/sync-push` to commit and push local changes
+- `/sync-enable-secrets` to opt in to secrets sync
+- `/sync-resolve` to automatically resolve uncommitted changes using AI
 
 <details>
 <summary>Manual (slash command alternative)</summary>
@@ -168,7 +168,7 @@ git log --oneline -5
 
 If the sync repo has uncommitted changes, you can:
 
-1. **Auto-resolve using AI**: Run `/opencode-sync-resolve` to let AI analyze and decide whether to commit or discard the changes
+1. **Auto-resolve using AI**: Run `/sync-resolve` to let AI analyze and decide whether to commit or discard the changes
 2. **Manual resolution**: Navigate to the repo and resolve manually:
 
 ```bash
@@ -177,7 +177,7 @@ git status
 git pull --rebase
 ```
 
-Then re-run `/opencode-sync-pull` or `/opencode-sync-push`.
+Then re-run `/sync-pull` or `/sync-push`.
 
 ## Development
 

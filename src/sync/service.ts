@@ -60,7 +60,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     startupSync: async () => {
       const config = await loadSyncConfig(locations);
       if (!config) {
-        await showToast(ctx, 'Configure opencode-sync with /opencode-sync-init.', 'info');
+        await showToast(ctx, 'Configure opencode-sync with /sync-init.', 'info');
         return;
       }
       try {
@@ -72,7 +72,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     status: async () => {
       const config = await loadSyncConfig(locations);
       if (!config) {
-        return 'opencode-sync is not configured. Run /opencode-sync-init to set it up.';
+        return 'opencode-sync is not configured. Run /sync-init to set it up.';
       }
 
       const repoRoot = resolveRepoRoot(config, locations);
@@ -277,7 +277,7 @@ async function runStartup(
   if (dirty) {
     await showToast(
       ctx,
-      `Uncommitted changes detected. Run /opencode-sync-resolve to auto-fix, or manually resolve in: ${repoRoot}`,
+      `Uncommitted changes detected. Run /sync-resolve to auto-fix, or manually resolve in: ${repoRoot}`,
       'warning'
     );
     return;
@@ -315,9 +315,7 @@ async function getConfigOrThrow(
 ): Promise<ReturnType<typeof normalizeSyncConfig>> {
   const config = await loadSyncConfig(locations);
   if (!config) {
-    throw new SyncConfigMissingError(
-      'Missing opencode-sync config. Run /opencode-sync-init to set it up.'
-    );
+    throw new SyncConfigMissingError('Missing opencode-sync config. Run /sync-init to set it up.');
   }
   return config;
 }
@@ -450,7 +448,7 @@ async function analyzeAndDecideResolution(
     let sessionId: string | null = null;
     try {
       const sessionResult = await ctx.client.session.create({
-        body: { title: 'opencode-sync-resolve' },
+        body: { title: 'sync-resolve' },
       });
       const session = unwrapData<{ id: string }>(sessionResult);
       sessionId = session?.id ?? null;
