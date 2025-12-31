@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented here by Release Please.
 
+## [0.4.2](https://github.com/iHildy/opencode-synced/compare/v0.4.1...v0.4.2) (2025-12-31)
+
+
+### Bug Fixes
+
+* harden plugin loading and add pack test ([a230567](https://github.com/iHildy/opencode-synced/commit/a23056704377bcf07805478c38a37b65555daed8))
+
 ## [0.4.2](https://github.com/iHildy/opencode-synced/compare/v0.3.0...v0.4.2) (2025-12-31)
 
 
