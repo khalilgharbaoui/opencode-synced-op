@@ -1,0 +1,115 @@
+name: Opencode Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'npm dist-tag to test'
+        required: true
+        default: next
+      timeout:
+        description: 'seconds to wait before considering opencode stable'
+        required: false
+        default: '20'
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+        default: 20
+
+jobs:
+  smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve plugin version
+        id: version
+        run: |
+          VERSION=$(npm view opencode-synced@${{ inputs.tag }} version)
+          if [ -z "$VERSION" ]; then
+            echo "No version found for tag: ${{ inputs.tag }}"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Install opencode
+        env:
+          OPENCODE_INSTALL_DIR: ${{ runner.temp }}/opencode/bin
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "${OPENCODE_INSTALL_DIR}" >> "$GITHUB_PATH"
+
+      - name: Configure clean opencode home
+        env:
+          OPENCODE_HOME: ${{ runner.temp }}/opencode-home
+          PLUGIN_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          export HOME="$OPENCODE_HOME"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          export XDG_CACHE_HOME="$HOME/.cache"
+          export XDG_DATA_HOME="$HOME/.local/share"
+          export XDG_STATE_HOME="$HOME/.local/state"
+
+          mkdir -p "$XDG_CONFIG_HOME/opencode"
+          cat > "$XDG_CONFIG_HOME/opencode/opencode.json" <<EOF
+          {
+            "\$schema": "https://opencode.ai/config.json",
+            "plugin": ["opencode-synced@${PLUGIN_VERSION}"]
+          }
+          EOF
+
+          rm -rf "$XDG_CACHE_HOME/opencode/node_modules"
+
+      - name: Launch opencode (smoke)
+        env:
+          OPENCODE_HOME: ${{ runner.temp }}/opencode-home
+          OPENCODE_SMOKE_TIMEOUT: ${{ inputs.timeout }}
+        run: |
+          export HOME="$OPENCODE_HOME"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          export XDG_CACHE_HOME="$HOME/.cache"
+          export XDG_DATA_HOME="$HOME/.local/share"
+          export XDG_STATE_HOME="$HOME/.local/state"
+
+          python - <<'PY'
+          import os
+          import subprocess
+          import time
+          import sys
+
+          timeout = int(os.environ.get("OPENCODE_SMOKE_TIMEOUT", "20"))
+          cmd = ["opencode", "serve", "--port", "4096", "--hostname", "127.0.0.1"]
+
+          proc = subprocess.Popen(
+              cmd,
+              stdout=subprocess.PIPE,
+              stderr=subprocess.STDOUT,
+              text=True,
+          )
+
+          time.sleep(timeout)
+
+          if proc.poll() is not None:
+              output = proc.stdout.read() if proc.stdout else ""
+              print("opencode exited early with code", proc.returncode)
+              print(output)
+              sys.exit(1)
+
+          proc.terminate()
+          try:
+              proc.wait(timeout=5)
+          except subprocess.TimeoutExpired:
+              proc.kill()
+              proc.wait()
+          PY
