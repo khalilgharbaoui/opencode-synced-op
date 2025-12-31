@@ -81,18 +81,29 @@ async function loadCommands(): Promise<ParsedCommand[]> {
   const commands: ParsedCommand[] = [];
   const commandDir = path.join(getModuleDir(), 'command');
 
+  try {
+    const stats = await fs.stat(commandDir);
+    if (!stats.isDirectory()) {
+      return commands;
+    }
+  } catch {
+    return commands;
+  }
+
   const files = await scanMdFiles(commandDir);
   for (const file of files) {
-    const content = await fs.readFile(file, 'utf-8');
-    const { frontmatter, body } = parseFrontmatter(content);
-    const relativePath = path.relative(commandDir, file);
-    const name = relativePath.replace(/\.md$/, '').replace(/\//g, '-');
+    try {
+      const content = await fs.readFile(file, 'utf-8');
+      const { frontmatter, body } = parseFrontmatter(content);
+      const relativePath = path.relative(commandDir, file);
+      const name = relativePath.replace(/\.md$/, '').replace(/\//g, '-');
 
-    commands.push({
-      name,
-      frontmatter,
-      template: body,
-    });
+      commands.push({
+        name,
+        frontmatter,
+        template: body,
+      });
+    } catch {}
   }
 
   return commands;
@@ -209,6 +220,9 @@ export const OpencodeConfigSync: Plugin = async (ctx) => {
     },
   };
 };
+
+export const OpencodeSynced = OpencodeConfigSync;
+export default OpencodeConfigSync;
 
 function formatError(error: unknown): string {
   if (error instanceof Error) return error.message;

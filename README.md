@@ -247,6 +247,25 @@ bun -e '
 - `bun run test`
 - `bun run lint`
 
+### Local testing (production-like)
+
+To test the same artifact that would be published, install from a packed tarball
+into OpenCode's cache:
+
+```bash
+mise run local-pack-test
+```
+
+Then set `~/.config/opencode/opencode.json` to use:
+
+```jsonc
+{
+  "plugin": ["opencode-synced"]
+}
+```
+
+Restart OpenCode to pick up the cached install.
+
 
 ## Prefer a CLI version?
 
