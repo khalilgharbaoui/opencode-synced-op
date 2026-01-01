@@ -28,12 +28,7 @@ Enable the plugin in your global OpenCode config (OpenCode will install it on ne
 }
 ```
 
-OpenCode does not auto-update plugins. To update, remove the cached plugin and restart OpenCode:
-
-```bash
-rm -rf ~/.cache/opencode/node_modules/opencode-synced
-opencode
-```
+OpenCode does not auto-update plugins. To update, modify the version number in your config file.
 
 ## Configure
 
