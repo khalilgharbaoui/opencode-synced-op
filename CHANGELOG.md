@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented here by Release Please.
 
+## [0.8.0](https://github.com/iHildy/opencode-synced/compare/v0.7.1...v0.8.0) (2026-01-29)
+
+
+### Features
+
+* support syncing extra config paths ([7cfab68](https://github.com/iHildy/opencode-synced/commit/7cfab681c09e8c0b8308aaf6875b057bfab82f23))
+
+
+### Bug Fixes
+
+* safe chmod extra path entries ([5b37a7c](https://github.com/iHildy/opencode-synced/commit/5b37a7c55812acef513870b7f015c5215913dbe5))
+
 ## [0.7.1](https://github.com/iHildy/opencode-synced/compare/v0.7.0...v0.7.1) (2026-01-05)
 
 
