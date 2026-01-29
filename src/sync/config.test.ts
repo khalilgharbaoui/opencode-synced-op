@@ -72,6 +72,11 @@ describe('normalizeSyncConfig', () => {
     });
     expect(normalized.includeMcpSecrets).toBe(true);
   });
+
+  it('enables model favorites by default', () => {
+    const normalized = normalizeSyncConfig({});
+    expect(normalized.includeModelFavorites).toBe(true);
+  });
 });
 
 describe('canCommitMcpSecrets', () => {

@@ -137,6 +137,10 @@ export const OpencodeConfigSync: Plugin = async (ctx) => {
         .boolean()
         .optional()
         .describe('Enable prompt stash/history sync (requires includeSecrets)'),
+      includeModelFavorites: tool.schema
+        .boolean()
+        .optional()
+        .describe('Sync model favorites (state/model.json)'),
       create: tool.schema.boolean().optional().describe('Create repo if missing'),
       private: tool.schema.boolean().optional().describe('Create repo as private'),
       extraSecretPaths: tool.schema.array(tool.schema.string()).optional(),
@@ -159,6 +163,7 @@ export const OpencodeConfigSync: Plugin = async (ctx) => {
             includeMcpSecrets: args.includeMcpSecrets,
             includeSessions: args.includeSessions,
             includePromptStash: args.includePromptStash,
+            includeModelFavorites: args.includeModelFavorites,
             create: args.create,
             private: args.private,
             extraSecretPaths: args.extraSecretPaths,

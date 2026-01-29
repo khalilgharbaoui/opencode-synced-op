@@ -54,6 +54,7 @@ const DEFAULT_STATE_NAME = 'sync-state.json';
 const CONFIG_DIRS = ['agent', 'command', 'mode', 'tool', 'themes', 'plugin'];
 const SESSION_DIRS = ['storage/session', 'storage/message', 'storage/part', 'storage/session_diff'];
 const PROMPT_STASH_FILES = ['prompt-stash.jsonl', 'prompt-history.jsonl'];
+const MODEL_FAVORITES_FILE = 'model.json';
 
 export function resolveHomeDir(
   env: NodeJS.ProcessEnv = process.env,
@@ -173,9 +174,11 @@ export function buildSyncPlan(
 ): SyncPlan {
   const configRoot = locations.configRoot;
   const dataRoot = path.join(locations.xdg.dataDir, 'opencode');
+  const stateRoot = path.join(locations.xdg.stateDir, 'opencode');
   const repoConfigRoot = path.join(repoRoot, 'config');
   const repoDataRoot = path.join(repoRoot, 'data');
   const repoSecretsRoot = path.join(repoRoot, 'secrets');
+  const repoStateRoot = path.join(repoRoot, 'state');
   const repoExtraDir = path.join(repoSecretsRoot, 'extra');
   const manifestPath = path.join(repoSecretsRoot, 'extra-manifest.json');
   const repoConfigExtraDir = path.join(repoConfigRoot, 'extra');
@@ -202,6 +205,16 @@ export function buildSyncPlan(
       localPath: path.join(configRoot, dirName),
       repoPath: path.join(repoConfigRoot, dirName),
       type: 'dir',
+      isSecret: false,
+      isConfigFile: false,
+    });
+  }
+
+  if (config.includeModelFavorites !== false) {
+    items.push({
+      localPath: path.join(stateRoot, MODEL_FAVORITES_FILE),
+      repoPath: path.join(repoStateRoot, MODEL_FAVORITES_FILE),
+      type: 'file',
       isSecret: false,
       isConfigFile: false,
     });
@@ -238,8 +251,6 @@ export function buildSyncPlan(
     }
 
     if (config.includePromptStash) {
-      const stateRoot = path.join(locations.xdg.stateDir, 'opencode');
-      const repoStateRoot = path.join(repoRoot, 'state');
       for (const fileName of PROMPT_STASH_FILES) {
         items.push({
           localPath: path.join(stateRoot, fileName),

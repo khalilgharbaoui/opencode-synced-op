@@ -75,4 +75,32 @@ describe('buildSyncPlan', () => {
     expect(plan.extraSecrets.allowlist.length).toBe(1);
     expect(plan.extraConfigs.allowlist.length).toBe(1);
   });
+
+  it('includes model favorites by default and allows disabling', () => {
+    const env = { HOME: '/home/test' } as NodeJS.ProcessEnv;
+    const locations = resolveSyncLocations(env, 'linux');
+    const config: SyncConfig = {
+      repo: { owner: 'acme', name: 'config' },
+      includeSecrets: false,
+    };
+
+    const plan = buildSyncPlan(config, locations, '/repo', 'linux');
+    const favoritesItem = plan.items.find((item) =>
+      item.localPath.endsWith('/.local/state/opencode/model.json')
+    );
+
+    expect(favoritesItem).toBeTruthy();
+
+    const disabledPlan = buildSyncPlan(
+      { ...config, includeModelFavorites: false },
+      locations,
+      '/repo',
+      'linux'
+    );
+    const disabledItem = disabledPlan.items.find((item) =>
+      item.localPath.endsWith('/.local/state/opencode/model.json')
+    );
+
+    expect(disabledItem).toBeUndefined();
+  });
 });

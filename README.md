@@ -76,6 +76,7 @@ Create `~/.config/opencode/opencode-synced.jsonc`:
   "includeMcpSecrets": false,
   "includeSessions": false,
   "includePromptStash": false,
+  "includeModelFavorites": true,
   "extraSecretPaths": [],
   "extraConfigPaths": [],
 }
@@ -88,6 +89,7 @@ Create `~/.config/opencode/opencode-synced.jsonc`:
 - `~/.config/opencode/opencode.json` and `opencode.jsonc`
 - `~/.config/opencode/AGENTS.md`
 - `~/.config/opencode/agent/`, `command/`, `mode/`, `tool/`, `themes/`, `plugin/`
+- `~/.local/state/opencode/model.json` (model favorites)
 - Any extra paths in `extraConfigPaths` (allowlist, files or folders)
 
 ### Secrets (private repos only)

@@ -53,6 +53,7 @@ interface InitOptions {
   includeMcpSecrets?: boolean;
   includeSessions?: boolean;
   includePromptStash?: boolean;
+  includeModelFavorites?: boolean;
   create?: boolean;
   private?: boolean;
   extraSecretPaths?: string[];
@@ -175,6 +176,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
       const includeMcpSecrets = config.includeMcpSecrets ? 'enabled' : 'disabled';
       const includeSessions = config.includeSessions ? 'enabled' : 'disabled';
       const includePromptStash = config.includePromptStash ? 'enabled' : 'disabled';
+      const includeModelFavorites = config.includeModelFavorites ? 'enabled' : 'disabled';
       const lastPull = state.lastPull ?? 'never';
       const lastPush = state.lastPush ?? 'never';
 
@@ -195,6 +197,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
         `MCP secrets: ${includeMcpSecrets}`,
         `Sessions: ${includeSessions}`,
         `Prompt stash: ${includePromptStash}`,
+        `Model favorites: ${includeModelFavorites}`,
         `Last pull: ${lastPull}`,
         `Last push: ${lastPush}`,
         `Working tree: ${changesLabel}`,
@@ -539,6 +542,7 @@ async function buildConfigFromInit($: Shell, options: InitOptions) {
     includeMcpSecrets: options.includeMcpSecrets ?? false,
     includeSessions: options.includeSessions ?? false,
     includePromptStash: options.includePromptStash ?? false,
+    includeModelFavorites: options.includeModelFavorites ?? true,
     extraSecretPaths: options.extraSecretPaths ?? [],
     extraConfigPaths: options.extraConfigPaths ?? [],
     localRepoPath: options.localRepoPath,

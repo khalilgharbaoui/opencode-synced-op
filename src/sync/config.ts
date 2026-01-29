@@ -17,6 +17,7 @@ export interface SyncConfig {
   includeMcpSecrets?: boolean;
   includeSessions?: boolean;
   includePromptStash?: boolean;
+  includeModelFavorites?: boolean;
   extraSecretPaths?: string[];
   extraConfigPaths?: string[];
 }
@@ -48,11 +49,13 @@ export async function chmodIfExists(filePath: string, mode: number): Promise<voi
 
 export function normalizeSyncConfig(config: SyncConfig): SyncConfig {
   const includeSecrets = Boolean(config.includeSecrets);
+  const includeModelFavorites = config.includeModelFavorites !== false;
   return {
     includeSecrets,
     includeMcpSecrets: includeSecrets ? Boolean(config.includeMcpSecrets) : false,
     includeSessions: Boolean(config.includeSessions),
     includePromptStash: Boolean(config.includePromptStash),
+    includeModelFavorites,
     extraSecretPaths: Array.isArray(config.extraSecretPaths) ? config.extraSecretPaths : [],
     extraConfigPaths: Array.isArray(config.extraConfigPaths) ? config.extraConfigPaths : [],
     localRepoPath: config.localRepoPath,
