@@ -104,6 +104,8 @@ jobs:
             exit 1
           fi
 
+          npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
+
           VERSION="${{ needs.publish.outputs.version }}"
           if [ -z "$VERSION" ]; then
             echo "Missing published version."
