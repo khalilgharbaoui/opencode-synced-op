@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented here by Release Please.
 
+## [1.0.2](https://github.com/khalilgharbaoui/opencode-synced-1password/compare/v1.0.1...v1.0.2) (2026-02-01)
+
+
+### Bug Fixes
+
+* sync opencode-synced config ([4b098d8](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/4b098d86f8fc9918502bdf0441b861d40871b96b))
+
 ## [1.0.1](https://github.com/khalilgharbaoui/opencode-synced-1password/compare/v1.0.0...v1.0.1) (2026-02-01)
 
 
