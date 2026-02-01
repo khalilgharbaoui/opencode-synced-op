@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented here by Release Please.
 
+## [1.0.1](https://github.com/khalilgharbaoui/opencode-synced-1password/compare/v1.0.0...v1.0.1) (2026-02-01)
+
+
+### Bug Fixes
+
+* address secrets backend review ([ebc76d7](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/ebc76d7ccc39a867569efcf337964eecb4eac4f2))
+
 ## 1.0.0 (2026-02-01)
 
 
