@@ -24,6 +24,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
+          target-branch: fork-release
           skip-github-pull-request: false
 
   dispatch-publish:
