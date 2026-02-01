@@ -107,6 +107,27 @@ Enable secrets with `/sync-enable-secrets` or set `"includeSecrets": true`:
 MCP API keys stored inside `opencode.json(c)` are **not** committed by default. To allow them
 in a private repo, set `"includeMcpSecrets": true` (requires `includeSecrets`).
 
+### 1Password backend (fork only)
+
+To keep `auth.json` and `mcp-auth.json` out of git, configure a secrets backend:
+
+```jsonc
+{
+  "includeSecrets": true,
+  "secretsBackend": {
+    "type": "1password",
+    "vault": "Personal",
+    "documents": {
+      "authJson": "opencode-auth.json",
+      "mcpAuthJson": "opencode-mcp-auth.json"
+    }
+  }
+}
+```
+
+When `secretsBackend.type` is `1password`, auth files are pulled/pushed via 1Password
+and never committed to the sync repo. Requires the `op` CLI.
+
 ### Sessions (private repos only)
 
 Sync your opencode sessions (conversation history from `/sessions`) across machines by setting `"includeSessions": true`. This requires `includeSecrets` to also be enabled since sessions may contain sensitive data.
@@ -179,6 +200,9 @@ Env var naming rules:
 | `/sync-pull` | Fetch and apply remote config |
 | `/sync-push` | Commit and push local changes |
 | `/sync-enable-secrets` | Enable secrets sync (private repos only) |
+| `/sync-secrets-pull` | Pull secrets from the configured backend |
+| `/sync-secrets-push` | Push secrets to the configured backend |
+| `/sync-secrets-status` | Show secrets backend status |
 | `/sync-resolve` | Auto-resolve uncommitted changes using AI |
 
 <details>
