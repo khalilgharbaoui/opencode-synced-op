@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { PluginInput } from '@opencode-ai/plugin';
 import { syncLocalToRepo, syncRepoToLocal } from './apply.js';
 import { generateCommitMessage } from './commit.js';
-import type { SyncConfig } from './config.js';
+import type { NormalizedSyncConfig } from './config.js';
 import {
   canCommitMcpSecrets,
   isOnePasswordBackend,
@@ -128,7 +128,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     );
 
   const resolveSecretsBackend = (
-    config: SyncConfig,
+    config: NormalizedSyncConfig,
     options: { requireConfigured: boolean }
   ): SecretsBackend | null => {
     const resolution = resolveOnePasswordConfig(config);
@@ -147,7 +147,10 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     return createOnePasswordBackend({ $: ctx.$, locations, config: resolution.config });
   };
 
-  const ensureAuthFilesNotTracked = async (repoRoot: string, config: SyncConfig): Promise<void> => {
+  const ensureAuthFilesNotTracked = async (
+    repoRoot: string,
+    config: NormalizedSyncConfig
+  ): Promise<void> => {
     if (!isOnePasswordBackend(config)) return;
 
     const { authRepoPath, mcpAuthRepoPath } = resolveRepoAuthPaths(repoRoot);
@@ -171,7 +174,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     );
   };
 
-  const runSecretsPullIfConfigured = async (config: SyncConfig): Promise<void> => {
+  const runSecretsPullIfConfigured = async (config: NormalizedSyncConfig): Promise<void> => {
     const backend = resolveSecretsBackend(config, { requireConfigured: false });
     if (!backend) return;
     try {
@@ -181,7 +184,7 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     }
   };
 
-  const runSecretsPushIfConfigured = async (config: SyncConfig): Promise<void> => {
+  const runSecretsPushIfConfigured = async (config: NormalizedSyncConfig): Promise<void> => {
     const backend = resolveSecretsBackend(config, { requireConfigured: false });
     if (!backend) return;
     try {
@@ -189,6 +192,28 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
     } catch (error) {
       log.warn('Secrets backend push failed; continuing', { error: formatError(error) });
     }
+  };
+
+  const resolveSecretsBackendForCommand = async (): Promise<
+    { backend: SecretsBackend } | { message: string }
+  > => {
+    const config = await getConfigOrThrow(locations);
+    const resolution = resolveOnePasswordConfig(config);
+    if (resolution.state === 'none') {
+      return {
+        message: 'Secrets backend not configured. Add secretsBackend to opencode-synced.jsonc.',
+      };
+    }
+    if (resolution.state === 'invalid') {
+      throw new SyncCommandError(resolution.error);
+    }
+    return {
+      backend: createOnePasswordBackend({
+        $: ctx.$,
+        locations,
+        config: resolution.config,
+      }),
+    };
   };
 
   return {
@@ -470,56 +495,31 @@ export function createSyncService(ctx: SyncServiceContext): SyncService {
       }),
     secretsPull: () =>
       runExclusive(async () => {
-        const config = await getConfigOrThrow(locations);
-        const resolution = resolveOnePasswordConfig(config);
-        if (resolution.state === 'none') {
-          return 'Secrets backend not configured. Add secretsBackend to opencode-synced.jsonc.';
+        const resolved = await resolveSecretsBackendForCommand();
+        if ('message' in resolved) {
+          return resolved.message;
         }
-        if (resolution.state === 'invalid') {
-          throw new SyncCommandError(resolution.error);
-        }
-        const backend = createOnePasswordBackend({
-          $: ctx.$,
-          locations,
-          config: resolution.config,
-        });
+        const backend = resolved.backend;
         await backend.pull();
         return 'Pulled secrets from 1Password.';
       }),
     secretsPush: () =>
       runExclusive(async () => {
-        const config = await getConfigOrThrow(locations);
-        const resolution = resolveOnePasswordConfig(config);
-        if (resolution.state === 'none') {
-          return 'Secrets backend not configured. Add secretsBackend to opencode-synced.jsonc.';
+        const resolved = await resolveSecretsBackendForCommand();
+        if ('message' in resolved) {
+          return resolved.message;
         }
-        if (resolution.state === 'invalid') {
-          throw new SyncCommandError(resolution.error);
-        }
-        const backend = createOnePasswordBackend({
-          $: ctx.$,
-          locations,
-          config: resolution.config,
-        });
+        const backend = resolved.backend;
         await backend.push();
         return 'Pushed secrets to 1Password.';
       }),
     secretsStatus: () =>
       runExclusive(async () => {
-        const config = await getConfigOrThrow(locations);
-        const resolution = resolveOnePasswordConfig(config);
-        if (resolution.state === 'none') {
-          return 'Secrets backend not configured. Add secretsBackend to opencode-synced.jsonc.';
+        const resolved = await resolveSecretsBackendForCommand();
+        if ('message' in resolved) {
+          return resolved.message;
         }
-        if (resolution.state === 'invalid') {
-          throw new SyncCommandError(resolution.error);
-        }
-        const backend = createOnePasswordBackend({
-          $: ctx.$,
-          locations,
-          config: resolution.config,
-        });
-        return await backend.status();
+        return await resolved.backend.status();
       }),
     enableSecrets: (options?: { extraSecretPaths?: string[]; includeMcpSecrets?: boolean }) =>
       runExclusive(async () => {
@@ -600,8 +600,8 @@ async function runStartup(
   config: ReturnType<typeof normalizeSyncConfig>,
   log: Logger,
   options: {
-    ensureAuthFilesNotTracked: (repoRoot: string, config: SyncConfig) => Promise<void>;
-    runSecretsPullIfConfigured: (config: SyncConfig) => Promise<void>;
+    ensureAuthFilesNotTracked: (repoRoot: string, config: NormalizedSyncConfig) => Promise<void>;
+    runSecretsPullIfConfigured: (config: NormalizedSyncConfig) => Promise<void>;
   }
 ): Promise<void> {
   const repoRoot = resolveRepoRoot(config, locations);

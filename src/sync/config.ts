@@ -113,7 +113,7 @@ export function canCommitMcpSecrets(config: SyncConfig): boolean {
   return Boolean(config.includeSecrets) && Boolean(config.includeMcpSecrets);
 }
 
-export function isOnePasswordBackend(config: SyncConfig): boolean {
+export function isOnePasswordBackend(config: NormalizedSyncConfig): boolean {
   return config.secretsBackend?.type === '1password';
 }
 

@@ -88,7 +88,7 @@ pull(): Promise<void> // 1P -> local files
 
 push(): Promise<void> // local files -> 1P
 
-status(): Promise<{ ok: boolean; message: string }> (optional)
+status(): Promise<string> (optional)
 
 4) Implement OnePasswordBackend
 Implementation rules:

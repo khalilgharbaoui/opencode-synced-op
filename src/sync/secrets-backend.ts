@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import type { PluginInput } from '@opencode-ai/plugin';
-import type { SecretsBackendConfig, SyncConfig } from './config.js';
+import type { NormalizedSyncConfig } from './config.js';
 import { chmodIfExists, pathExists } from './config.js';
 import { SyncCommandError } from './errors.js';
 import type { SyncLocations } from './paths.js';
@@ -12,9 +12,10 @@ type Shell = PluginInput['$'];
 
 export interface OnePasswordConfig {
   vault: string;
-  documents: Required<Pick<SecretsBackendConfig, 'documents'>>['documents'] & {
+  documents: {
     authJson: string;
     mcpAuthJson: string;
+    envFile?: string;
   };
 }
 
@@ -29,7 +30,7 @@ export type OnePasswordResolution =
   | { state: 'invalid'; error: string }
   | { state: 'ok'; config: OnePasswordConfig };
 
-export function resolveOnePasswordConfig(config: SyncConfig): OnePasswordResolution {
+export function resolveOnePasswordConfig(config: NormalizedSyncConfig): OnePasswordResolution {
   const backend = config.secretsBackend;
   if (!backend || backend.type !== '1password') {
     return { state: 'none' };
@@ -208,6 +209,7 @@ async function opDocumentEdit(
 
 async function replaceFile(sourcePath: string, targetPath: string): Promise<void> {
   await fs.mkdir(path.dirname(targetPath), { recursive: true });
+  await chmodIfExists(sourcePath, 0o600);
   try {
     await fs.rename(sourcePath, targetPath);
   } catch (error) {
