@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented here by Release Please.
 
+## 1.0.0 (2026-02-01)
+
+
+### Features
+
+* add /opencode-sync-resolve command to auto-resolve changes ([a9b2420](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/a9b24203d186e62291e80982672ac973003f0530))
+* add /opencode-sync-resolve command to auto-resolve changes ([35e3545](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/35e354507bffa7dc380d90fd771f8a3f8424cebe))
+* Add file locking and improved chmod handling ([4a143a0](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/4a143a012f9ac15211d796e9b45bdb68556e808e))
+* add file locking and improved chmod handling to fix false bug ([e3382dc](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/e3382dce421685449e423bbad8b64d6133d80c23))
+* add GitHub user auto-detection and auto-create sync repo ([773af26](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/773af26472f24e4817a43081b8a1a8b6c2e2c391))
+* add GitHub user auto-detection and auto-create sync repo ([8998f8c](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/8998f8cbbf62cd90a50dc8dc064eb31de7303235))
+* Add MCP secret scrubbing and optional sync ([7ab9dfb](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/7ab9dfbf74ce97b78c296040a7fc77d5a79617d2))
+* add model favorites sync setting ([30a9326](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/30a93268df0ac8db245249eae73ba13ed23ddb4f))
+* add model favorites sync setting ([ea67233](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/ea672339a69deda24517c08f0f938efaea1d9080))
+* add prompt stash sync option (includePromptStash) ([2699008](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/2699008967a48af5f8418d89201172e64152265d))
+* add secrets backend config support ([f6a56e2](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/f6a56e28b2f34dd6f6ba08d3cebfc3fc30806048))
+* add secrets sync commands ([c29d63a](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/c29d63a2895eac43c4bb401bfed2597e38fe762d))
+* Add support syncing extra config paths ([5d09e51](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/5d09e5181dee9b1997f34cfe431f513ce4089937))
+* add sync-link command and improve repo management ([9525687](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/952568725fc48f6e1f37d2b013536aac28659b95))
+* add sync-link command and improve repo management ([f7bbc7b](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/f7bbc7b655efd507d97662203df8d22d13bc64ff))
+* force release 0.4.0 ([e104eab](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/e104eab65219de06dd0fd2115a66cf1fdcf64cdd))
+* force release for node compatibility refactor ([ec31b45](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/ec31b45c355f8777d2e502bb0a5681bc7c929bcf))
+* implement MCP secret scrubbing and optional sync ([49b8116](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/49b8116f03c2dd4a37e66f68ed30bb812edc75b5))
+* integrate 1Password secrets backend ([ca6a5bb](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/ca6a5bb927402d1b302a8691a6add200ea00f3e1))
+* support syncing extra config paths ([7cfab68](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/7cfab681c09e8c0b8308aaf6875b057bfab82f23))
+* support trailing commas in config and improve error handling ([378bc1a](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/378bc1a70476e378a958cf0461aa3cb204808f9b))
+* support trailing commas in config and improve error handling ([00ae89c](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/00ae89c5e291e9dd32777e27aab03712257ad81d))
+
+
+### Bug Fixes
+
+* address reviewer feedback on startup reliability and toasts ([11d417b](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/11d417b8d8abad3a2c4a2d0e59c436c2f318fce2))
+* adjust repo org/name detection ([b1c0fef](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/b1c0fef508c3f9ea6e00a42abb033fcbdad18c19))
+* avoid Object.hasOwn and structuredClone ([3248bef](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/3248bef6df3a7f224fb97dd1c14baf369fcc10ab))
+* avoid Object.hasOwn and structuredClone ([198857b](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/198857bf1f4c01689c4e6c92d2559ae0a38e30df))
+* generalize authorization scheme matching in mcp secrets ([3a50890](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/3a50890d86180c5ded4e1b71a81cf00a6097acf4))
+* harden plugin loading and add pack test ([48a5b43](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/48a5b436ba361c84ec4429cd554f1b9a84dfb173))
+* harden plugin loading and add pack test ([a230567](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/a23056704377bcf07805478c38a37b65555daed8))
+* improve startup reliability, repo validation, and toasts ([4fc999b](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/4fc999b8f21d0230583f84c625246f085959744f))
+* improve startup sync reliability and repository validation ([2480fb2](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/2480fb2f9b2874014eeef992e0b7f2c51a70476e))
+* move hasOwn to shared utility and use hasOwnProperty.call ([6919922](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/6919922f6785d6f1fae2dc09580ca4dfb4746ba9))
+* remove uppercase mention ([9e3e022](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/9e3e022ac1dcb29870af6593236d8b001f72fb27))
+* safe chmod extra path entries ([5b37a7c](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/5b37a7c55812acef513870b7f015c5215913dbe5))
+* use .js extensions in missed imports and update convention ([bae3ebb](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/bae3ebb7fbc3696965190d49d29deaa3e3ca6f3f))
+
+
+### Reverts
+
+* event-driven startup sync in favor of setTimeout delay ([221bf8c](https://github.com/khalilgharbaoui/opencode-synced-1password/commit/221bf8c04f4fe322f138b204202e4ea2e098f7ad))
+
 ## [0.9.0](https://github.com/iHildy/opencode-synced/compare/v0.8.0...v0.9.0) (2026-01-29)
 
 
