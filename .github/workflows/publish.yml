@@ -96,7 +96,14 @@ jobs:
           experimental: true
 
       - name: Promote latest dist-tag
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "Missing NPM_TOKEN secret for dist-tag promotion."
+            exit 1
+          fi
+
           VERSION="${{ needs.publish.outputs.version }}"
           if [ -z "$VERSION" ]; then
             echo "Missing published version."
