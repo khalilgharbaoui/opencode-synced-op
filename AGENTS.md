@@ -17,6 +17,12 @@
 - **PR Titles**: PR titles MUST follow conventional commit format (e.g., `fix: descriptive title`). This is enforced by GitHub checks.
 - **Workflow**: Run `bun run check` and `bun run test` before creating a PR.
 
+## Release (fork-release)
+
+- Merge the release-please PR on `fork-release` (or use a Release-As commit).
+- Publish: run `Publish Package` workflow with `tag=next`.
+- Promote: re-run `Publish Package` with `tag=latest` (uses `NPM_TOKEN`).
+
 ## Code Style Guidelines
 
 ### Imports & Module System
