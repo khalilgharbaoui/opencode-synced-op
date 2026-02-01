@@ -59,6 +59,34 @@ describe('buildSyncPlan', () => {
     expect(plan.extraConfigs.allowlist.length).toBe(1);
   });
 
+  it('includes opencode-synced config file in items', () => {
+    const env = { HOME: '/home/test' } as NodeJS.ProcessEnv;
+    const locations = resolveSyncLocations(env, 'linux');
+    const config: SyncConfig = {
+      repo: { owner: 'acme', name: 'config' },
+      includeSecrets: false,
+    };
+
+    const plan = buildSyncPlan(normalizeSyncConfig(config), locations, '/repo', 'linux');
+    const syncItem = plan.items.find((item) => item.localPath === locations.syncConfigPath);
+
+    expect(syncItem).toBeTruthy();
+  });
+
+  it('filters sync config from extra config paths', () => {
+    const env = { HOME: '/home/test' } as NodeJS.ProcessEnv;
+    const locations = resolveSyncLocations(env, 'linux');
+    const config: SyncConfig = {
+      repo: { owner: 'acme', name: 'config' },
+      includeSecrets: false,
+      extraConfigPaths: [locations.syncConfigPath],
+    };
+
+    const plan = buildSyncPlan(normalizeSyncConfig(config), locations, '/repo', 'linux');
+
+    expect(plan.extraConfigs.allowlist.length).toBe(0);
+  });
+
   it('includes secrets when includeSecrets is true', () => {
     const env = { HOME: '/home/test' } as NodeJS.ProcessEnv;
     const locations = resolveSyncLocations(env, 'linux');

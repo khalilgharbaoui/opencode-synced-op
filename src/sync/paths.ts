@@ -202,6 +202,7 @@ export function buildSyncPlan(
   addFile(DEFAULT_CONFIG_NAME, false, true);
   addFile(DEFAULT_CONFIGC_NAME, false, true);
   addFile(DEFAULT_AGENTS_NAME, false, false);
+  addFile(DEFAULT_SYNC_CONFIG_NAME, false, false);
 
   for (const dirName of CONFIG_DIRS) {
     items.push({
@@ -285,8 +286,12 @@ export function buildSyncPlan(
     platform
   );
 
+  const extraConfigPaths = (config.extraConfigPaths ?? []).filter(
+    (entry) => !isSamePath(entry, locations.syncConfigPath, locations.xdg.homeDir, platform)
+  );
+
   const extraConfigs = buildExtraPathPlan(
-    config.extraConfigPaths,
+    extraConfigPaths,
     locations,
     repoConfigExtraDir,
     configManifestPath,
